@@ -1,0 +1,9 @@
+.git
+node_modules
+dist
+.vercel
+.env*
+*.pem
+*.key
+*.log
+deployment/registry-artifact.json

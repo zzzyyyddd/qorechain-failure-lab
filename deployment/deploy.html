@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Diana registry deployment</title></head>
+<body><main>
+<h1>Deploy DiagnosticProofRegistry</h1>
+<p>Diana testnet only (EVM chain 9800). This creates a contract and costs test QOR. Use a funded QoreX coin-60 account with its PQC key registered and an open EVM authorisation window. Review the wallet prompt before approving.</p>
+<p>Only click once. If the result is uncertain, inspect the wallet and verify the transaction before trying again.</p>
+<button id="deploy">Connect QoreX and deploy</button>
+<pre id="status" aria-live="polite"></pre>
+<p>After the wallet returns a transaction hash, run <code>npm run verify:registry -- 0xTRANSACTION_HASH</code>. Save the hash if you leave this page.</p>
+</main><script type="module" src="/deploy.js"></script></body></html>

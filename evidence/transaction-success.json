@@ -1,0 +1,101 @@
+{
+  "source": "https://api-testnet.qore.host/cosmos/tx/v1beta1/txs/162C94567D7BE3CA25150867FA2477E849591F149BC8E8739F57A6ECD16273C9",
+  "retrieved_at": "2026-11-22T04:38:59.674Z",
+  "network": "qorechain-diana (endpoint)",
+  "tx_response": {
+    "txhash": "162C94567D7BE3CA25150867FA2477E849591F149BC8E8739F57A6ECD16273C9",
+    "height": "10533933",
+    "code": 0,
+    "codespace": "",
+    "raw_log": "",
+    "gas_wanted": "200000",
+    "gas_used": "167681",
+    "timestamp": "2026-11-22T04:36:48Z",
+    "events": [
+      {
+        "type": "pqc_verify",
+        "attributes": [
+          {
+            "key": "address",
+            "value": "qor19r0hutxxxlwd27ym8egpnkeyjwn3q5wfdc5ke7",
+            "index": true
+          },
+          {
+            "key": "key_type",
+            "value": "hybrid",
+            "index": true
+          },
+          {
+            "key": "algorithm_id",
+            "value": "dilithium5",
+            "index": true
+          },
+          {
+            "key": "hybrid_mode",
+            "value": "required",
+            "index": true
+          },
+          {
+            "key": "status",
+            "value": "algorithm_active",
+            "index": true
+          }
+        ]
+      },
+      {
+        "type": "pqc_hybrid_verify",
+        "attributes": [
+          {
+            "key": "address",
+            "value": "qor19r0hutxxxlwd27ym8egpnkeyjwn3q5wfdc5ke7",
+            "index": true
+          },
+          {
+            "key": "algorithm_id",
+            "value": "dilithium5",
+            "index": true
+          },
+          {
+            "key": "status",
+            "value": "verified",
+            "index": true
+          }
+        ]
+      }
+    ]
+  },
+  "transaction": {
+    "messages": [
+      {
+        "@type": "/cosmos.bank.v1beta1.MsgSend",
+        "from_address": "qor19r0hutxxxlwd27ym8egpnkeyjwn3q5wfdc5ke7",
+        "to_address": "qor19r0hutxxxlwd27ym8egpnkeyjwn3q5wfdc5ke7",
+        "amount": [
+          {
+            "denom": "uqor",
+            "amount": "1"
+          }
+        ]
+      }
+    ],
+    "memo": "QoreChain Failure Lab test",
+    "fee": {
+      "amount": [
+        {
+          "denom": "uqor",
+          "amount": "30000"
+        }
+      ],
+      "gas_limit": "200000",
+      "payer": "",
+      "granter": ""
+    },
+    "extension_options": [
+      {
+        "@type": "/qorechain.pqc.v1.PQCHybridSignature",
+        "algorithm_id": 1
+      }
+    ]
+  },
+  "note": "Selected fields only; signatures and public keys omitted. Endpoint-reported events are not independent cryptographic verification."
+}

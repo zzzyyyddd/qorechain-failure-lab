@@ -1,0 +1,45 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { Interface, id, ZeroHash } from 'ethers';
+import { createVM } from '@ethereumjs/vm';
+import { bytesToHex, createAddressFromString, hexToBytes } from '@ethereumjs/util';
+import { compileRegistry } from '../scripts/compile-registry.mjs';
+
+test('registry records per sender, rejects duplicates and emits evidence', async () => {
+  const vm = await createVM();
+  const first = createAddressFromString('0x1000000000000000000000000000000000000001');
+  const second = createAddressFromString('0x2000000000000000000000000000000000000002');
+  const artifact = compileRegistry();
+  const iface = new Interface(artifact.abi);
+  const created = await vm.evm.runCall({ caller: first, data: hexToBytes(artifact.bytecode), gasLimit: 5_000_000n });
+  assert.equal(created.execResult.exceptionError, undefined);
+  assert.ok(created.createdAddress);
+  const call = (sender, method, args) => vm.evm.runCall({ caller: sender, to: created.createdAddress, data: hexToBytes(iface.encodeFunctionData(method, args)), gasLimit: 1_000_000n });
+  const getRecorded = async (sender, hash) => {
+    const result = await call(first, 'recorded', [sender.toString(), hash]);
+    assert.equal(result.execResult.exceptionError, undefined);
+    return iface.decodeFunctionResult('recorded', bytesToHex(result.execResult.returnValue))[0];
+  };
+  const hash = id('sanitized test report');
+  assert.equal(await getRecorded(first, hash), false);
+  const recorded = await call(first, 'record', [hash]);
+  assert.equal(recorded.execResult.exceptionError, undefined);
+  assert.equal(await getRecorded(first, hash), true);
+  assert.equal(recorded.execResult.logs.length, 1);
+  const [address, topics, data] = recorded.execResult.logs[0];
+  assert.equal(bytesToHex(address).toLowerCase(), created.createdAddress.toString().toLowerCase());
+  const event = iface.parseLog({ topics: topics.map(bytesToHex), data: bytesToHex(data) });
+  assert.equal(event.name, 'DiagnosticRecorded');
+  assert.equal(event.args.recorder.toLowerCase(), first.toString().toLowerCase());
+  assert.equal(event.args.reportHash, hash);
+  const duplicate = await call(first, 'record', [hash]);
+  assert.ok(duplicate.execResult.exceptionError);
+  assert.equal(iface.parseError(bytesToHex(duplicate.execResult.returnValue)).name, 'AlreadyRecorded');
+  const empty = await call(first, 'record', [ZeroHash]);
+  assert.ok(empty.execResult.exceptionError);
+  assert.equal(iface.parseError(bytesToHex(empty.execResult.returnValue)).name, 'EmptyReportHash');
+  assert.equal(await getRecorded(second, hash), false);
+  const other = await call(second, 'record', [hash]);
+  assert.equal(other.execResult.exceptionError, undefined);
+  assert.equal(await getRecorded(second, hash), true);
+});

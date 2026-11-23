@@ -1,0 +1,16 @@
+# Development dependency security review
+
+Review date: 2026-11-22. The initial `npm audit --json` request could not resolve npm in the sandbox. The equivalent full-tree request `npm audit --omit=dev --include=dev --json` succeeded (`--include=dev` takes precedence), reporting six affected package entries: 3 moderate, 1 high and 2 critical. All were development dependencies.
+
+| Original dependency path | Advisory IDs | Patched version / remediation |
+| --- | --- | --- |
+| `vitest@2.1.9` | [GHSA-5xrq-8626-4rwp](https://github.com/advisories/GHSA-5xrq-8626-4rwp) | Vitest 3.2.6 or 4.1.0; 4.1.12 selected to cover other advisories. |
+| `vitest@2.1.9 → @vitest/mocker@2.1.9` (also Vitest itself) | [GHSA-82fw-gwwq-j7x9](https://github.com/advisories/GHSA-82fw-gwwq-j7x9), [GHSA-qxg6-89mg-rqv8](https://github.com/advisories/GHSA-qxg6-89mg-rqv8) | 4.1.11 and 4.1.12 respectively; Vitest 4.1.12 installs mocker 4.1.12. |
+| `vitest@2.1.9 → tinypool@1.1.1` | [GHSA-5gmw-xhrv-c9v3](https://github.com/advisories/GHSA-5gmw-xhrv-c9v3), [GHSA-85c8-ppgw-ccpr](https://github.com/advisories/GHSA-85c8-ppgw-ccpr) | Tinypool 2.1.1 and 2.1.2 respectively. Vitest 4.1.12 removes the dependency instead of forcing an incompatible Tinypool version. |
+| `vite@5.4.21 → esbuild@0.21.5` (also through Vitest / vite-node / plugin-react) | [GHSA-67mh-4wv8-2f99](https://github.com/advisories/GHSA-67mh-4wv8-2f99) | esbuild 0.25.0; Vite 6.4.5 declares `^0.25.0`. |
+| `vite@5.4.21` (direct; also `@vitejs/plugin-react → vite` and `vitest → vite`, `vitest → vite-node → vite`, and `vitest → @vitest/mocker → vite`) | [GHSA-4w7w-66w2-5vf9](https://github.com/advisories/GHSA-4w7w-66w2-5vf9), [GHSA-v6wh-96g9-6wx3](https://github.com/advisories/GHSA-v6wh-96g9-6wx3), [GHSA-698v-4r3x-3vcv](https://github.com/advisories/GHSA-698v-4r3x-3vcv), [GHSA-r825-w8mm-5pxw](https://github.com/advisories/GHSA-r825-w8mm-5pxw), [GHSA-587h-7wmj-h5pm](https://github.com/advisories/GHSA-587h-7wmj-h5pm), [GHSA-9jrq-w75r-8gcw](https://github.com/advisories/GHSA-9jrq-w75r-8gcw), [GHSA-rq7h-c2jc-7f22](https://github.com/advisories/GHSA-rq7h-c2jc-7f22), [GHSA-fx2h-pf6j-xcff](https://github.com/advisories/GHSA-fx2h-pf6j-xcff) | Patched Vite 6 branch: 6.4.2 for the first, 6.4.3 for the second and last, 6.4.4 for the remaining five; 6.4.5 selected. |
+| `vitest@2.1.9 → vite-node@2.1.9 → vite@5.4.21` | No separate advisory; propagated Vite findings. | Upgrade Vitest and Vite; verify resolved tree. |
+
+The Vite 5 and Vitest 2 major versions had no fixes for all flagged vulnerabilities. Vite 6.4.5 and Vitest 4.1.12 are the targeted patched versions selected: both support Node 20 and Vitest accepts Vite 6. The existing React plugin 4.7.0 supports Vite 6. Major upgrades are necessary for the fixes; no `npm audit fix --force` was used.
+
+An intermediate audit of Vite 6.4.4 reported the additional moderate [GHSA-8g5g-mxqh-grgj](https://github.com/advisories/GHSA-8g5g-mxqh-grgj); 6.4.5 is patched and was selected. Final installed tree: Vite 6.4.5, esbuild 0.25.12, Vitest and @vitest/mocker 4.1.12, plugin-react 4.7.0. Tinypool and vite-node are no longer present. Final full-tree audit reported zero findings. The initial attempt to install the Vite 8 toolchain hit an npm peer resolver error; the final Vite 6 installation and plain `npm install` succeeded without legacy flags.
