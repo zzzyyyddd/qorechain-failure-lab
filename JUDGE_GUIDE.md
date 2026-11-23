@@ -1,10 +1,45 @@
-# Three-minute judge demo
+# Judge guide: three minutes, no wallet required
 
-1. **0:00–0:30 — Start:** Run `npm install` and `npm run dev -- --host 127.0.0.1`, then open the printed local URL. Explain this is a Diana native-lane diagnostic tool.
-2. **0:30–1:15 — Live evidence:** Paste `162C94567D7BE3CA25150867FA2477E849591F149BC8E8739F57A6ECD16273C9`. Inspect the receipt-confirmed status, height, gas, fee, message and address. Copy the report. Contrast wallet-reported shield and chain-reported verification event with independent cryptographic verification, which has not been performed.
-3. **1:15–2:15 — Simulations:** Select out-of-gas, missing transaction, and RPC timeout. Each is explicitly SIMULATED; show that unavailable lookup is not an on-chain failure. Explain codespace plus code drive the out-of-gas classification.
-4. **2:15–3:00 — Wallet:** Show the QoreX panel. With a funded Diana account, connect and optionally click the self-transfer only after reviewing the fee and approving the wallet prompts. Otherwise describe the flow without sending. Finish with the limits in README and the sanitized evidence file.
+Open the [production application](https://qorechain-failure-lab.vercel.app/). The inspector reads **native Diana testnet** transactions; an EVM transaction hash is a different identifier. Live endpoint availability can affect results.
 
-No testnet transaction is needed to demonstrate the lookup or simulations. The local proxy needs network access.
+## 0:00–0:45 · Inspect a known receipt
 
-The lookup above is the **native** transaction proof. Separately, the EVM registry deployment at `0xebffbd63020757ffdd4ca40c2ddcc3ae564403be` succeeded in transaction `0xed6bd49d5ac1a6e075d138aa0c4b8960121bee32604996fdb115e377a80c8921` at block 10589871 on chain 9800; its receipt and runtime code were checked via RPC. Search the address or transaction on the [explorer](https://explore.qore.network/) with Testnet selected. See [EVIDENCE.md](EVIDENCE.md) for both records and their limits.
+Click **Try verified transaction**. The app looks up:
+
+```text
+162C94567D7BE3CA25150867FA2477E849591F149BC8E8739F57A6ECD16273C9
+```
+
+The recorded REST response reports height `10533933` and code `0`. Open **View evidence details** and **View technical report**, or copy the report. The chain-reported PQC event is not an independent signature verification. The raw receipt may contain public signature material.
+
+## 0:45–1:30 · Try an unfamiliar transaction
+
+Paste this native hash into **Native transaction hash**, without `0x`, and inspect it:
+
+```text
+7749F8F0BFE9DF62A15EF75481144241F237EC3AB74DE7EB2E5FCF9783FA0A2C
+```
+
+The sampled receipt reported height `10604453`, code `0`, and native `MsgRegisterKEMKey`. Compare with the [independent native REST response](https://api-testnet.qore.host/cosmos/tx/v1beta1/txs/7749F8F0BFE9DF62A15EF75481144241F237EC3AB74DE7EB2E5FCF9783FA0A2C). Eleven further samples appear in [EVIDENCE.md](EVIDENCE.md#unfamiliar-native-transaction-audit--2026-11-23). Endpoints can be unavailable; a lookup error does not establish a failed transaction.
+
+## 1:30–2:15 · Explore failure handling
+
+In **Failure simulation lab**, select **Out-of-gas**, **On-chain failure**, and **RPC timeout**. Each example is invented, labeled simulated, and runs locally. A matching committed receipt with code `0` supports success; a matching committed nonzero code supports failure, with specific categories only for recognized codespace/code pairs. An unavailable endpoint is a transport observation. A mismatched, incomplete or malformed receipt yields insufficient evidence. No real committed failure was found in the sample, so real-failure classification remains unverified.
+
+## 2:15–3:00 · Compare the evidence cards
+
+The **native** card describes the receipt above. The separate **EVM** card identifies a deployed commitment registry and its deployment transaction. The registry records a caller-provided hash; it does not prove the content or accuracy of a diagnosis. Open **QoreX native wallet test** to see the optional, approval-gated self-transfer flow; do not connect or send for this demonstration.
+
+## Verify independently afterward
+
+1. Select Testnet on the [QoreChain explorer](https://explore.qore.network/) and search the native hash, or query the [native REST receipt](https://api-testnet.qore.host/cosmos/tx/v1beta1/txs/162C94567D7BE3CA25150867FA2477E849591F149BC8E8739F57A6ECD16273C9).
+2. In a local checkout with a supported Node version and network access, run:
+
+   ```sh
+   npm ci
+   npm run compile:registry
+   npm run verify:registry -- 0xed6bd49d5ac1a6e075d138aa0c4b8960121bee32604996fdb115e377a80c8921
+   ```
+
+   The read-only verifier checks Diana EVM chain ID `9800`, creation receipt and input, and runtime bytecode against local compilation. Expected contract: `0xebffbd63020757ffdd4ca40c2ddcc3ae564403be`; block `10589871`. It neither sends a transaction nor proves consensus independently.
+3. For the full test suite and known limitations, see the [README](README.md#run-and-verify), [evidence](EVIDENCE.md), and [deployment notes](DEPLOYMENT.md).

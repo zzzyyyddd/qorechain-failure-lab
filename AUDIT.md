@@ -1,4 +1,12 @@
-# Quantum Pass audit and deployment readiness
+# Audit and deployment readiness
+
+## Current status — 2026-11-23
+
+The repository and application are public, and the Diana EVM registry deployment was verified through read-only RPC. The production inspector was tested against 12 unfamiliar native successes; no real committed failure was found, so that classification remains unverified. A mismatched-receipt display bug found during that audit was fixed and released in Mission 07B. See [EVIDENCE.md](EVIDENCE.md), [DEPLOYMENT.md](DEPLOYMENT.md), and [JUDGE_GUIDE.md](JUDGE_GUIDE.md). Browser checks did not exercise a real QoreX approval. No independent PQC or consensus verification is claimed.
+
+Event eligibility, organizer acceptance, participant account state, project-page details, and any required video have not been independently verified. This repository is not a hackathon submission.
+
+## Historical Mission 03 review
 
 > Historical Mission 03 snapshot. The Diana contract was subsequently deployed and verified; see [EVIDENCE.md](EVIDENCE.md) for current evidence.
 

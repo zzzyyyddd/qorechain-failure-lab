@@ -1,5 +1,7 @@
 # Development dependency security review
 
+This is a historical review, not a live vulnerability status. Run `npm audit` against the current lockfile and advisory database for a current result.
+
 Review date: 2026-11-22. The initial `npm audit --json` request could not resolve npm in the sandbox. The equivalent full-tree request `npm audit --omit=dev --include=dev --json` succeeded (`--include=dev` takes precedence), reporting six affected package entries: 3 moderate, 1 high and 2 critical. All were development dependencies.
 
 | Original dependency path | Advisory IDs | Patched version / remediation |

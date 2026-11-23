@@ -2,7 +2,7 @@
 
 ## Unfamiliar native transaction audit — 2026-11-23
 
-Twelve distinct native hashes were discovered in the public Diana consensus transaction index and checked against the separate [native REST endpoint](https://api-testnet.qore.host/). For each, the REST hash and committed height matched the index, both reported code 0, and the production inspector displayed confirmed success and the matching height. The sample includes native EVM-window management messages, not EVM transaction hashes. These are endpoint reports, not independently verified consensus or PQC proofs.
+Twelve distinct native hashes were discovered in the public Diana consensus transaction index and checked against the separate [native REST endpoint](https://api-testnet.qore.host/cosmos/tx/v1beta1/txs/7749F8F0BFE9DF62A15EF75481144241F237EC3AB74DE7EB2E5FCF9783FA0A2C). For each, the REST hash and committed height matched the index, both reported code 0, and the production inspector displayed confirmed success and the matching height. The sample includes native EVM-window management messages, not EVM transaction hashes. These are endpoint reports, not independently verified consensus or PQC proofs.
 
 | Native hash | Height | Native message |
 | --- | ---: | --- |
@@ -27,7 +27,7 @@ The read-only verifier queried `https://evm-testnet.qore.host` and confirmed cha
 
 On 2026-11-23 the separate native REST lookup again returned the native hash, height 10533933, code 0 and `pqc_hybrid_verify` status `verified` with algorithm `dilithium5`.
 
-## Public release checks — 2026-11-23
+## Historical public release checks — 2026-11-23
 
 Repository: https://github.com/zzzyyyddd/qorechain-failure-lab. Production: https://qorechain-failure-lab.vercel.app/ (Vercel deployment `dpl_9VfBBNsSqMdRf1q5vY3PLERgrxn5`). Unauthenticated requests to the production alias returned HTTP 200 for the homepage and its JavaScript bundle. Both the `/lcd/cosmos/tx/v1beta1/txs/` lookup route and `/api/receipt?hash=` returned HTTP 200 and the known native hash, height 10533933, code 0 and chain-reported hybrid verification status `verified`. The API rejected an invalid hash with HTTP 400. This checks the deployed HTTP routes, not an interactive browser session or independent signature verification.
 

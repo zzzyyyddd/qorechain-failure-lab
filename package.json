@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "QoreX native testnet wallet test",
+  "description": "Evidence-led native Diana testnet transaction diagnostics and simulations",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
