@@ -15,6 +15,22 @@ describe('diagnostic evidence', () => {
     expect(diagnose(receipt({code:21,codespace:'other'})).status).toBe('Confirmed on-chain failure');
     expect(diagnose(receipt({code:0,codespace:'pqc'})).status).toBe('Confirmed success');
   });
+  it('classifies a committed native abstract-account failure without guessing its cause', () => {
+    const real = {kind:'receipt',hash:'A16AF5CEE2A53B4B6182655538F742C69069CD7CEC15C177D209B2B7C1A2F9FD',data:{tx_response:{txhash:'A16AF5CEE2A53B4B6182655538F742C69069CD7CEC15C177D209B2B7C1A2F9FD',height:'10578914',code:10,codespace:'abstractaccount'}}} as const;
+    expect(diagnose(real).status).toBe('Confirmed on-chain failure');
+    expect(diagnose(real).explanation).toContain('cause is not classified');
+  });
+  it('separates a native code zero from a reported EVM execution failure', () => {
+    const evmHash = '0x03485c05590097811fb608ed7e941c4fe50fa591aa09165c7f7f2f0f9c966518';
+    const data = {tx_response:{txhash:hash,height:'10578918',code:0,events:[{type:'ethereum_tx',attributes:[{key:'ethereumTxHash',value:evmHash},{key:'ethereumTxFailed',value:'execution reverted'},{key:'signature',value:'excluded'}]}]},tx:{body:{messages:[{'@type':'/cosmos.evm.vm.v1.MsgEthereumTx'}]}}};
+    const input: Lookup = {kind:'receipt',hash,data};
+    expect(diagnose(input).status).toBe('EVM execution failure reported');
+    expect(diagnose(input).confidence).toBe('Chain-reported event');
+    expect(JSON.stringify(evidence(input))).toContain(evmHash);
+    expect(JSON.stringify(evidence(input))).not.toContain('excluded');
+    expect(diagnose({kind:'receipt',hash,data:{...data,tx_response:{...data.tx_response,events:[]}}}).status).toBe('Native receipt succeeded; EVM outcome unverified');
+    expect(diagnose({kind:'receipt',hash,data:{...data,tx_response:{...data.tx_response,txhash:'c'.repeat(64)}}}).status).toBe('Insufficient evidence');
+  });
   it('never treats a lookup error as an on-chain failure', () => {
     for(const kind of ['invalid','not-found','unavailable','insufficient'] as const) expect(diagnose({kind,detail:'test'}).status).not.toMatch(/on-chain failure|Confirmed success/);
   });

@@ -63,6 +63,17 @@ describe('transaction workspace', () => {
     expect(screen.getByText(/do not treat it as matching evidence/i)).toBeTruthy();
   });
 
+  it('shows a reported EVM revert instead of calling the native wrapper a success', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ status: 200, ok: true, json: async () => ({ tx_response: { txhash: NATIVE_HASH, height: '10578918', code: 0, events: [{ type: 'ethereum_tx', attributes: [{ key: 'ethereumTxHash', value: '0x03485c05590097811fb608ed7e941c4fe50fa591aa09165c7f7f2f0f9c966518' }, { key: 'ethereumTxFailed', value: 'execution reverted' }] }] }, tx: { body: { messages: [{ '@type': '/cosmos.evm.vm.v1.MsgEthereumTx' }] } } }) })));
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /use verified example/i }));
+    await screen.findByRole('heading', { name: 'EVM execution failure reported' });
+    expect(screen.queryByRole('heading', { name: 'Confirmed success' })).toBeNull();
+    const summary = screen.getByText('View technical report');
+    fireEvent.click(summary);
+    expect(summary.parentElement?.querySelector('pre')?.textContent).toContain('execution reverted');
+  });
+
   it('copies the full contract address, not its shortened display', async () => {
     const writeText = vi.fn(async () => {});
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });

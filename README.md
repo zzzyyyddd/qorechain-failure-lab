@@ -38,8 +38,10 @@ The inspector accepts native Cosmos transaction hashes, **not EVM transaction ha
 
 ### Reading a diagnosis
 
+The EVM-wrapper distinction described below is implemented locally and has not yet been deployed; the production version currently reports native code `0` as success even when an EVM failure event is present. See [real failure validation](EVIDENCE.md#real-failure-validation--2026-11-23).
+
 1. The client validates the native hash and requests the receipt through the proxy.
-2. A **matching hash, positive committed height, and numeric code** are required for a receipt-confirmed outcome. Code `0` is success; a nonzero code is a committed failure. Only specific codespace-and-code pairs receive a narrower classification.
+2. A **matching hash, positive committed height, and numeric code** are required for a receipt-confirmed outcome. A nonzero native code is a committed native failure. Code `0` reports native success, but an EVM wrapper can still contain a failed EVM execution: the inspector flags a reported failure event, or leaves the EVM outcome unverified. Only specific codespace-and-code pairs receive a narrower native classification.
 3. Invalid input, endpoint not found, transport failure and insufficient evidence are reported separately. An unavailable endpoint or absent receipt is not proof of an on-chain failure. A mismatched response is excluded from the evidence summary and report; the raw response is labeled unverified.
 4. The technical report excludes raw signature fields, but can include public transaction details and raw log text. Review it before sharing. The raw receipt can contain public signature material.
 
@@ -91,7 +93,7 @@ The verifier performs read-only EVM RPC calls, compiles the local contract and c
 
 The QoreX panel is separate from inspection. Connecting requests wallet access; sending requires an explicit click and wallet approval. The optional test sends **1 uqor to the connected native address**, plus the wallet-displayed fee; QoreX may request a separate key-registration approval. Never enter a private key or recovery phrase into this project. No wallet is needed for lookup or simulations.
 
-The application trusts the configured REST endpoint and proxy for receipt data; it does not validate a consensus proof or independently verify a PQC signature. A chain event and a wallet-reported shield are observations from those sources, not independent verification. The classifier covers a limited set of codes and cannot explain every rejection, especially one occurring before inclusion. Fields may be absent for some messages. No real committed failed receipt was found in the sampled transactions, so real-failure classification remains unverified. Tests use fixtures and wallet stubs and do not substitute for a current real-wallet test.
+The application trusts the configured REST endpoint and proxy for receipt data; it does not validate a consensus proof or independently verify a PQC signature. A chain event and a wallet-reported shield are observations from those sources, not independent verification. The classifier covers a limited set of codes and cannot explain every rejection, especially one occurring before inclusion. Fields may be absent for some messages. One genuine native committed failure was checked against the inspector; broader failure categories remain unverified against real receipts. The inspector does not query EVM receipts. Tests use fixtures and wallet stubs and do not substitute for a current real-wallet test.
 
 ## Technology and documentation
 

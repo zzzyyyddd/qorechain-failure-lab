@@ -1,5 +1,24 @@
 # Testnet evidence
 
+## Real failure validation — 2026-11-23
+
+At approximately 09:13–09:16 UTC, a read-only, rate-limited search of six 20-transaction pages (descending index pages 1, 100, 300, 600, 1000 and 2000) returned 120 records across heights 9911203–10605896. Page numbers in a live descending index shift as new transactions arrive; this is a sample, not a complete or randomly selected history. Three sampled native executions had nonzero codes. Six sampled native wrapper records contained EVM failure events. Endpoint results are not independent consensus proofs.
+
+**Committed native failure:** native hash `A16AF5CEE2A53B4B6182655538F742C69069CD7CEC15C177D209B2B7C1A2F9FD`, height `10578914`, message `/qorechain.abstractaccount.v1.MsgExecuteEVM`, codespace `abstractaccount`, code `10`. The native REST raw log reports that the gas provisioned for the call was below its signed limit and ends with “authenticator not permitted for this action”. The consensus index and [native REST receipt](https://api-testnet.qore.host/cosmos/tx/v1beta1/txs/A16AF5CEE2A53B4B6182655538F742C69069CD7CEC15C177D209B2B7C1A2F9FD) agreed on hash, height and code. The production inspector returned **Confirmed on-chain failure**, included the matching fields and raw log in its report, and conservatively left the cause unclassified. This is one real failure case, not validation of every specialized category.
+
+**Separate EVM revert:** native wrapper hash `2352EDDF41E244149279EA3A7F08B8210D0EC00E1B50F52C890AB2DA7A3E96FA` at height `10578918` has native code `0` and message `/cosmos.evm.vm.v1.MsgEthereumTx`; its `ethereum_tx` event reports `execution reverted`. The distinct EVM hash `0x03485c05590097811fb608ed7e941c4fe50fa591aa09165c7f7f2f0f9c966518` returned EVM receipt status `0x0` at block `10578918`, gas used `150000`, from the Diana EVM RPC. Production at the time displayed **Confirmed success** based on native code `0`, without surfacing the EVM failure event. The local change reports the native event as an EVM execution failure, distinguishes it from an independently retrieved EVM receipt, and leaves an EVM outcome unverified when no failure event is present. It does not add EVM-hash lookup to the native inspector. This change has not been pushed or deployed.
+
+Reproduce the read-only checks (the native and EVM hashes are different):
+
+```sh
+curl 'https://api-testnet.qore.host/cosmos/tx/v1beta1/txs/A16AF5CEE2A53B4B6182655538F742C69069CD7CEC15C177D209B2B7C1A2F9FD'
+curl 'https://api-testnet.qore.host/cosmos/tx/v1beta1/txs/2352EDDF41E244149279EA3A7F08B8210D0EC00E1B50F52C890AB2DA7A3E96FA'
+curl -H 'Content-Type: application/json' --data '{"jsonrpc":"2.0","id":1,"method":"eth_getTransactionReceipt","params":["0x03485c05590097811fb608ed7e941c4fe50fa591aa09165c7f7f2f0f9c966518"]}' https://evm-testnet.qore.host
+curl --get --data-urlencode 'query="tx.height=10578914"' --data-urlencode 'per_page=20' --data-urlencode 'order_by="desc"' https://rpc-testnet.qore.host/tx_search
+```
+
+Local browser checks retrieved both real native receipts and displayed the expected diagnosis and report, including the EVM failure event and separate EVM hash. Regression tests cover the real native failure fields, reported EVM failure, absent EVM failure event, mismatched hash, and rendered report. `npm test` passed 29 application tests and both contract test files; typecheck, production build, and full npm audit also passed (zero vulnerabilities reported). These checks used public reads and sent no transaction. The reported PQC events were not independently cryptographically verified.
+
 ## Unfamiliar native transaction audit — 2026-11-23
 
 Twelve distinct native hashes were discovered in the public Diana consensus transaction index and checked against the separate [native REST endpoint](https://api-testnet.qore.host/cosmos/tx/v1beta1/txs/7749F8F0BFE9DF62A15EF75481144241F237EC3AB74DE7EB2E5FCF9783FA0A2C). For each, the REST hash and committed height matched the index, both reported code 0, and the production inspector displayed confirmed success and the matching height. The sample includes native EVM-window management messages, not EVM transaction hashes. These are endpoint reports, not independently verified consensus or PQC proofs.
@@ -19,7 +38,7 @@ Twelve distinct native hashes were discovered in the public Diana consensus tran
 | `D2B896CBE49316D43702B173ED3DE39A565A21B1DF7CFADA07E2DF8AAFF9A9DE` | 10604179 | MsgPostRollupData |
 | `875A1B77FDDDF2FF880A87B34830CEDCED72B516918C675B4ACD5F4C51751F0D` | 10604167 | MsgOpenEVMWindow |
 
-The latest 100 indexed transactions and another 100 sampled farther back all reported code 0. No real committed failed receipt was found; real-failure classification remains unverified. A controlled mismatched response exposed a display bug: the diagnosis said insufficient evidence, but its summary showed the other receipt's block and code. The fix in this revision excludes mismatched fields from the evidence summary and report, while labeling the raw response as unverified. No transaction was sent during this audit.
+The latest 100 indexed transactions and another 100 sampled farther back all reported code 0. No real committed failed receipt was found in that earlier sample; the later search above found one. A controlled mismatched response exposed a display bug: the diagnosis said insufficient evidence, but its summary showed the other receipt's block and code. The fix excludes mismatched fields from the evidence summary and report, while labeling the raw response as unverified. No transaction was sent during that audit.
 
 ## DiagnosticProofRegistry deployment — independently rechecked 2026-11-23
 

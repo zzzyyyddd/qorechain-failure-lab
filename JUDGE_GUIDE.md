@@ -24,7 +24,7 @@ The sampled receipt reported height `10604453`, code `0`, and native `MsgRegiste
 
 ## 1:30–2:15 · Explore failure handling
 
-In **Failure simulation lab**, select **Out-of-gas**, **On-chain failure**, and **RPC timeout**. Each example is invented, labeled simulated, and runs locally. A matching committed receipt with code `0` supports success; a matching committed nonzero code supports failure, with specific categories only for recognized codespace/code pairs. An unavailable endpoint is a transport observation. A mismatched, incomplete or malformed receipt yields insufficient evidence. No real committed failure was found in the sample, so real-failure classification remains unverified.
+In **Failure simulation lab**, select **Out-of-gas**, **On-chain failure**, and **RPC timeout**. Each example is invented, labeled simulated, and runs locally. A matching committed nonzero native code supports failure, with specific categories only for recognized codespace/code pairs. Native code `0` alone does not establish EVM execution success; the current production inspector does not yet flag this distinction. An unavailable endpoint is a transport observation. A mismatched, incomplete or malformed receipt yields insufficient evidence. A real native failure is documented in [EVIDENCE.md](EVIDENCE.md#real-failure-validation--2026-11-23); other failure categories remain unverified against real receipts.
 
 ## 2:15–3:00 · Compare the evidence cards
 
