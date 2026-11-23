@@ -2,6 +2,8 @@
 
 A native Diana testnet transaction diagnostics dashboard and QoreX wallet test, built from the official `create-qorechain-dapp` 0.14.0 fullstack-web Vite/React starter. Live lookups, wallet observations, and simulated examples are kept separate.
 
+Public app: https://qorechain-failure-lab.vercel.app/ · Source: https://github.com/zzzyyyddd/qorechain-failure-lab
+
 ## Run locally
 
 Requires Node.js 20, 22, or 24 and later (see `engines` in package.json). Run:
