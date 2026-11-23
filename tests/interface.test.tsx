@@ -50,6 +50,19 @@ describe('transaction workspace', () => {
     expect(fetcher).toHaveBeenCalledTimes(2);
   });
 
+  it('does not display a mismatched receipt as transaction evidence', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ status: 200, ok: true, json: async () => ({ tx_response: { txhash: 'C'.repeat(64), height: '987', code: 0 } }) })));
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /use verified example/i }));
+    await screen.findByRole('heading', { name: 'Insufficient evidence' });
+    expect(screen.queryByText('987')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Retry lookup' })).toBeTruthy();
+    fireEvent.click(screen.getByText('View technical report'));
+    expect(screen.getByText(/"evidence": null/)).toBeTruthy();
+    fireEvent.click(screen.getByText('View raw receipt'));
+    expect(screen.getByText(/do not treat it as matching evidence/i)).toBeTruthy();
+  });
+
   it('copies the full contract address, not its shortened display', async () => {
     const writeText = vi.fn(async () => {});
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });

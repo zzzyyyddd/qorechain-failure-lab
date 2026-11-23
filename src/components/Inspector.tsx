@@ -32,7 +32,7 @@ export const Inspector = forwardRef<{ runExample: () => void }>(function Inspect
         <div className="result-actions"><button type="button" className="button secondary" onClick={() => void copyReport()}>Copy report</button><span role="status">{copyStatus}</span></div>
         <details><summary>View evidence details</summary><pre>{JSON.stringify(details ?? { source: diagnosis.source, detail: diagnosis.explanation }, null, 2)}</pre></details>
         <details open={copyStatus.startsWith('Copy failed') || undefined}><summary>View technical report</summary><pre>{JSON.stringify(report, null, 2)}</pre></details>
-        {live.kind === 'receipt' && <details><summary>View raw receipt</summary><p className="field-help">The raw response may contain public signature material.</p><pre>{JSON.stringify(live.data, null, 2)}</pre></details>}
+        {live.kind === 'receipt' && <details><summary>View raw receipt</summary><p className="field-help">{!details && 'This response could not be matched to the requested transaction; do not treat it as matching evidence. '}The raw response may contain public signature material.</p><pre>{JSON.stringify(live.data, null, 2)}</pre></details>}
       </div>}
     </div>
   </section>;

@@ -28,6 +28,11 @@ describe('diagnostic evidence', () => {
     const data = {tx_response:{txhash:hash,height:'1',code:0},tx:{body:{messages:[],extension_options:[{pqc_signature:'secret marker'}]},signatures:['secret marker']}};
     expect(JSON.stringify(evidence({kind:'receipt',hash,data}))).not.toContain('secret marker');
   });
+  it('does not expose a mismatched receipt as evidence for the requested transaction', () => {
+    const mismatched = receipt({txhash:'c'.repeat(64), height:'987', code:0});
+    expect(diagnose(mismatched).status).toBe('Insufficient evidence');
+    expect(evidence(mismatched)).toBeNull();
+  });
 });
 describe('lookup', () => {
   it('validates locally without a request', async () => {

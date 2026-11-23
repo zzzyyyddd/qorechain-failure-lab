@@ -47,6 +47,8 @@ export async function lookupTransaction(hash: string, fetcher: typeof fetch = fe
 export function evidence(input: Lookup): Record<string, unknown> | null {
   if (input.kind !== 'receipt') return null;
   const data = obj(input.data), r = obj(data.tx_response), tx = obj(data.tx), body = obj(tx.body), fee = obj(obj(tx.auth_info).fee);
+  // Never present another transaction's fields as evidence for the requested hash.
+  if (string(r.txhash).toUpperCase() !== input.hash.toUpperCase()) return null;
   return { network:'Diana testnet REST endpoint', hash:r.txhash ?? null, height:r.height ?? null, code:r.code ?? null, codespace:r.codespace ?? null, raw_log:r.raw_log ?? null, gas_wanted:r.gas_wanted ?? null, gas_used:r.gas_used ?? null, fees:fee.amount ?? null, messages:arr(body.messages).map((m) => {const message=obj(m); return {type:message['@type'] ?? null, sender:message.from_address ?? message.sender ?? null, recipient:message.to_address ?? message.recipient ?? null, amount:message.amount ?? null};}), timestamp:r.timestamp ?? null, pqc_events:arr(r.events).filter((event) => ['pqc_verify','pqc_hybrid_verify'].includes(string(obj(event).type))).map((event) => ({type:obj(event).type, attributes:arr(obj(event).attributes).filter((attribute) => ['status','algorithm_id','key_type','hybrid_mode'].includes(string(obj(attribute).key))).map((attribute) => ({key:obj(attribute).key, value:obj(attribute).value}))})), extension_types:arr(body.extension_options).map((entry) => obj(entry)['@type'] ?? null), pqc_note:'Independent cryptographic verification not performed.' };
 }
 
