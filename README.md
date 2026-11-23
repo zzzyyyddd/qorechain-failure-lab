@@ -38,7 +38,7 @@ The inspector accepts native Cosmos transaction hashes, **not EVM transaction ha
 
 ### Reading a diagnosis
 
-The EVM-wrapper distinction described below is implemented locally and has not yet been deployed; the production version currently reports native code `0` as success even when an EVM failure event is present. See [real failure validation](EVIDENCE.md#real-failure-validation--2026-11-23).
+The native and EVM-wrapper distinction has been checked against real receipts; see [real failure validation](EVIDENCE.md#real-failure-validation--2026-11-23).
 
 1. The client validates the native hash and requests the receipt through the proxy.
 2. A **matching hash, positive committed height, and numeric code** are required for a receipt-confirmed outcome. A nonzero native code is a committed native failure. Code `0` reports native success, but an EVM wrapper can still contain a failed EVM execution: the inspector flags a reported failure event, or leaves the EVM outcome unverified. Only specific codespace-and-code pairs receive a narrower native classification.

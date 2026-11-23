@@ -2,7 +2,7 @@
 
 ## Current status — 2026-11-23
 
-The repository and application are public, and the Diana EVM registry deployment was verified through read-only RPC. The production inspector was tested against 12 unfamiliar native successes and, later, one real native committed failure. A separate EVM revert revealed that native code 0 can coexist with failed EVM execution; the local fix and its release status are documented in [EVIDENCE.md](EVIDENCE.md). A mismatched-receipt display bug found earlier was fixed and released in Mission 07B. See also [DEPLOYMENT.md](DEPLOYMENT.md) and [JUDGE_GUIDE.md](JUDGE_GUIDE.md). Browser checks did not exercise a real QoreX approval. No independent PQC or consensus verification is claimed.
+The repository and application are public, and the Diana EVM registry deployment was verified through read-only RPC. The production inspector was tested against 12 unfamiliar native successes and, later, one real native committed failure. A separate EVM revert revealed that native code 0 can coexist with failed EVM execution; the fix and production checks are documented in [EVIDENCE.md](EVIDENCE.md). A mismatched-receipt display bug found earlier was fixed and released in Mission 07B. See also [DEPLOYMENT.md](DEPLOYMENT.md) and [JUDGE_GUIDE.md](JUDGE_GUIDE.md). Browser checks did not exercise a real QoreX approval. No independent PQC or consensus verification is claimed.
 
 Event eligibility, organizer acceptance, participant account state, project-page details, and any required video have not been independently verified. This repository is not a hackathon submission.
 
